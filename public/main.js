@@ -45,27 +45,28 @@ function addFirebaseListeners(){
 	//the event (defined by firebase) that's being listened for, and a callback
 	// debugger
 	chatHistory.on("child_added", function(snapshot){
-		console.log(snapshot);
+		console.log(snapshot.val());
+		appendMessage(snapshot);
 	});
 }
 
-		//function to append messages to the DOM. The function takes a snapshot as an argument. The snapshot is the
-		//firebase reponse or object. If you 'push' a new object into a reference, the most recent object will be returned
-		//as the snapshot
-		function appendMessage(snapshot){
-			var message = snapshot.val();
-			var newLi = $("<li>");
-			newLi.text(message.name + " says: " + message.text)
-			$("#messagesList").append(newLi);
-		};
+	//function to append messages to the DOM. The function takes a snapshot as an argument. The snapshot is the
+	//firebase reponse or object. If you 'push' a new object into a reference, the most recent object will be returned
+	//as the snapshot
+	function appendMessage(snapshot){
+	var message = snapshot.val();
+	var newLi = $("<li>");
+	newLi.text(message.name + " says: " + message.text)
+	$("#messagesList").append(newLi);
+	};
 
-		//a bit of jquery to grab input and make a call to your firebase when 'return' is hit
-		$('#messageInput').keypress(function (e) {
-		  if (e.keyCode == 13) {
-		    var name = $('#nameInput').val();
-		    var text = $('#messageInput').val();
-				chatHistory.push({name: name, text: text});
-		    $('#messageInput').val('');
-		    $('#nameInput').val('');
-		  }
-		});
+	//a bit of jquery to grab input and make a call to your firebase when 'return' is hit
+	$('#messageInput').keypress(function (e) {
+	if (e.keyCode == 13) {
+	  var name = $('#nameInput').val();
+	  var text = $('#messageInput').val();
+		chatHistory.push({name: name, text: text});
+	  $('#messageInput').val('');
+	  $('#nameInput').val('');
+	}
+	});
