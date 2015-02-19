@@ -5,23 +5,28 @@ var myDataRef = new Firebase('https://resplendent-heat-9042.firebaseio.com/');
 var currentRoom;
 var myRoomID;
 var chatHistory;
+var roomName;
 // we create a 'room', which is just a child of our main firebase. semantically, we are creating a 'rooms'
 // branch in the firebase gui, pointing the roomRef variable at it.
 //below, we've created an empty array of rooms that we can push room instances into
-var roomRef = myDataRef.child("rooms");
-var roomName = "WDI Zelda Room"
 
-roomRef.once("value", function(snapshot){
-	snapshot.forEach(function(data){
-		if(data.key() == roomName){
-			currentRoom = data
-			loadChat();
-		}else{
-			currentRoom = roomRef.child(roomName);
-			loadChat();
-		}
-	})	
-})
+var roomRef = myDataRef.child("rooms");
+
+function connectToRoom(roomToJoin){
+	if (currentRoom != roomToJoin){
+		roomRef.once("value", function(snapshot){
+			snapshot.forEach(function(data){
+				if(data.key() == roomName){
+					currentRoom = data
+					loadChat();
+				}else{
+					currentRoom = roomRef.child(roomToJoin);
+					loadChat();
+				}
+			})	
+		})
+	};
+};
 
 function loadChat(){
 	//below, we create a new "room" by pushing an object in. .push returns the new object created
@@ -59,14 +64,27 @@ function appendMessage(snapshot){
 	$("#messagesList").append(newLi);
 };
 
-//a bit of jquery to grab input and make a call to your firebase when 'return' is hit
-$('#messageInput').keypress(function (e) {
-if (e.keyCode == 13) {
-  var name = $('#nameInput').val();
-  var text = $('#messageInput').val();
-  debugger
-	chatHistory.ref().push({name: name, text: text});
-  $('#messageInput').val('');
-  $('#nameInput').val('');
-}
+
+$(function(){
+	//a bit of jquery to grab input and make a call to your firebase when 'return' is hit
+	$('#messageInput').keypress(function (e) {
+		if (e.keyCode == 13) {
+		  var name = $('#nameInput').val();
+		  var text = $('#messageInput').val();
+			chatHistory.ref().push({name: name, text: text});
+		  $('#messageInput').val('');
+		  $('#nameInput').val('');
+		}
+	});
+
+	$('form').on('submit', function(e){
+		e.preventDefault();
+
+		var $input = $(this).find('input');
+		var roomToJoin = $input.val();
+		roomName = roomToJoin;
+		connectToRoom(roomToJoin);
+		$input.val('');
+	});
+
 });
